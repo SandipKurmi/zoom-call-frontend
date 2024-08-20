@@ -1,0 +1,31 @@
+<div class="video-room">
+  <div class="video-grid">
+    <div class="video-container local-video">
+      <video #localVideo autoplay muted></video>
+    </div>
+    <div id="remoteVideos"></div>
+  </div>
+  <div class="user-list">
+    <h3>Users in Room:</h3>
+    <ul>
+      @for (user of users; track $index) {
+      {{
+        user
+      }}
+      }
+    </ul>
+  </div>
+  <div class="controls">
+    <label for="volume">Volume:</label>
+    <input
+      id="volume"
+      type="range"
+      min="0"
+      max="1"
+      step="0.1"
+      value="0.8"
+      (input)="adjustVolume($event)"
+    />
+    <button (click)="endCall()">End Call</button>
+  </div>
+</div>
