@@ -18,12 +18,13 @@ import Peer from 'peerjs';
 })
 export class RoomComponent implements OnInit, OnDestroy {
   @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
-  private peer: Peer;
+  private peer: Peer | null = null;
   private myStream: MediaStream | undefined;
   private roomId: string | null = null;
   public users: string[] = [];
   private remoteStreams: Map<string, HTMLVideoElement> = new Map();
   volume: number = 1;
+  public connectionError: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,7 +36,31 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.roomId = this.route.snapshot.paramMap.get('roomId');
-    this.joinRoom();
+    // this.joinRoom();
+
+    if (this.roomId) {
+      this.initializePeerAndJoinRoom();
+    }
+  }
+
+  async initializePeerAndJoinRoom(retryCount: number = 0) {
+    try {
+      this.peer = new Peer();
+      await new Promise<void>((resolve, reject) => {
+        this.peer!.on('open', () => resolve());
+        this.peer!.on('error', (err) => reject(err));
+      });
+      await this.joinRoom();
+    } catch (error) {
+      console.error('Failed to initialize Peer or join room:', error);
+      this.connectionError = `Failed to connect: ${error}. Retrying...`;
+      if (retryCount < 3) {
+        setTimeout(() => this.initializePeerAndJoinRoom(retryCount + 1), 2000);
+      } else {
+        this.connectionError =
+          'Failed to connect after multiple attempts. Please try refreshing the page.';
+      }
+    }
   }
 
   async joinRoom() {
@@ -51,49 +76,51 @@ export class RoomComponent implements OnInit, OnDestroy {
 
       this.localVideo.nativeElement.srcObject = this.myStream;
 
-      this.peer.on('open', (userId) => {
-        this.socket.emit('join-room', this.roomId, userId);
-      });
+      if (this.peer && this.peer.id) {
+        this.socket.emit('join-room', this.roomId, this.peer.id);
+      } else {
+        throw new Error('Peer not initialized');
+      }
 
-      this.peer.on('call', (call) => {
-        call.answer(this.myStream);
-        call.on('stream', (remoteStream) => {
-          this.addVideoStream(call.peer, remoteStream);
-        });
-      });
-
-      // this.socket.on('user-connected', (userId: string) => {
-      //   this.connectToNewUser(userId, this.myStream);
-      // });
-
-      // this.socket.on('user-disconnected', (userId: string) => {
-      //   console.log('User disconnected:', userId);
-      //   // Implement logic to remove the disconnected user's video
-      // });
-
-      this.socket.on('user-connected', (userId: string) => {
-        this.connectToNewUser(userId, this.myStream);
-      });
-
-      this.socket.on('user-disconnected', (userId: string) => {
-        this.removeVideoStream(userId);
-      });
-
-      this.socket.on('room-users', (users: string[]) => {
-        this.users = users;
-        console.log('Users in room:', this.users);
-      });
+      this.setupPeerEventListeners();
+      this.setupSocketEventListeners();
     } catch (err) {
       console.error('Failed to get local stream', err);
     }
   }
 
+  setupPeerEventListeners() {
+    this.peer!.on('call', (call) => {
+      call.answer(this.myStream);
+      call.on('stream', (remoteStream) => {
+        this.addVideoStream(call.peer, remoteStream);
+      });
+    });
+  }
+
+  setupSocketEventListeners() {
+    this.socket.on('user-connected', (userId: string) => {
+      this.connectToNewUser(userId, this.myStream);
+    });
+
+    this.socket.on('user-disconnected', (userId: string) => {
+      this.removeVideoStream(userId);
+    });
+
+    this.socket.on('room-users', (users: string[]) => {
+      this.users = users;
+      console.log('Users in room:', this.users);
+    });
+  }
+
   connectToNewUser(userId: string, stream: MediaStream | undefined) {
     if (stream) {
-      const call = this.peer.call(userId, stream);
-      call.on('stream', (remoteStream) => {
-        this.addVideoStream(userId, remoteStream);
-      });
+      if (this.peer && this.peer.id) {
+        const call = this.peer.call(userId, stream);
+        call.on('stream', (remoteStream) => {
+          this.addVideoStream(userId, remoteStream);
+        });
+      }
     } else {
       console.error('Stream is undefined');
     }
@@ -126,7 +153,9 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.remoteStreams.forEach((video) => video.remove());
     this.remoteStreams.clear();
     this.socket.disconnect();
-    this.peer.destroy();
+    if (this.peer) {
+      this.peer?.destroy();
+    }
     this.router.navigate(['/']);
   }
 
