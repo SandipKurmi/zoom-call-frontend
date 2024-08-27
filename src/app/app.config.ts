@@ -6,7 +6,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideSocketIO } from './socket-io.provider';
 
 const devUrl = 'http://localhost:3000';
-const prodUrl = 'https://node-zoom-backend.onrender.com/';
+// const prodUrl = 'https://node-zoom-backend.onrender.com/';
 // const danishSirUrl = 'https://node-zoom-backend-danish.onrender.com/';
 
 export const appConfig: ApplicationConfig = {
@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideSocketIO({
-      url: prodUrl,
+      url: devUrl,
       options: {},
     }),
   ],
