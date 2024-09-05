@@ -1,0 +1,16 @@
+.goToProductsBtn {
+  margin-top: 10px;
+  font-size: 19px;
+  padding: 5px;
+  background-color: #ffdf3e;
+  border: 1px solid #000000;
+  cursor: pointer;
+}
+
+.goToProductsBtn:hover {
+  background-color: #ffd70b;
+}
+
+button + button {
+  margin-left: 10px;
+}

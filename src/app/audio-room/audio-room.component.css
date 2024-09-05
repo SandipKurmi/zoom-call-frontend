@@ -1,0 +1,15 @@
+.audio-room {
+  padding: 20px;
+}
+.user-list {
+  margin-bottom: 20px;
+}
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.error-message {
+  color: red;
+  margin-top: 10px;
+}

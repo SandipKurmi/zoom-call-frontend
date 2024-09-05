@@ -1,0 +1,33 @@
+<div class="audio-room">
+  <h2>Audio Room: {{ roomId }}</h2>
+  <div class="user-list">
+    <h3>Users in Room:</h3>
+    <ul>
+      @for (user of users; track user) {
+      <li>{{ user }}</li>
+      }
+    </ul>
+  </div>
+  <div class="controls">
+    <button (click)="toggleAudio()">
+      {{ isAudioEnabled ? "Mute" : "Unmute" }}
+    </button>
+    <label for="volume">Volume:</label>
+    <input
+      id="volume"
+      type="range"
+      min="0"
+      max="1"
+      step="0.1"
+      [value]="volume"
+      (input)="adjustVolume($event)"
+    />
+    <button (click)="leaveRoom()">Leave Room</button>
+  </div>
+
+  @if (connectionError) {
+  <div class="error-message">
+    {{ connectionError }}
+  </div>
+  }
+</div>

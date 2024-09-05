@@ -13,8 +13,13 @@ import { SwapyAppComponent } from '../swapy-app/swapy-app.component';
 export class HomeComponent {
   constructor(private router: Router) {}
 
-  createRoom() {
+  createVideoRoom() {
     const roomId = uuidv4();
     this.router.navigate(['/room', roomId]);
+  }
+
+  createAudioRoom() {
+    const roomId = uuidv4();
+    this.router.navigate(['/audio-room', roomId]);
   }
 }

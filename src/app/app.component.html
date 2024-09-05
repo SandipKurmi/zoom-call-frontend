@@ -1,16 +1,20 @@
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
-<!-- * * * * * * * to get started with your project! * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<div class="container">
+  <div class="headline">Zoom Demo</div>
 
-<style></style>
+  <!-- <div class="links">
+    <a routerLink="/dashboard" routerLinkActive="active">dashboard</a>
+    <a routerLink="/products" routerLinkActive="active">products</a>
+    <a
+      routerLink="/settings"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      >settings</a
+    >
+    <a routerLink="/settings/profile" routerLinkActive="active">profile</a>
+    <a routerLink="/pages/1" routerLinkActive="active">pages/1</a>
+  </div> -->
 
-<main class="main">
-  <div class="content">
+  <div class="main">
     <router-outlet></router-outlet>
   </div>
-</main>
+</div>
